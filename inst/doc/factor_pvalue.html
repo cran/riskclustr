@@ -14,7 +14,7 @@
 <meta name="author" content="Emily C. Zabor" />
 
 
-<title>Tutorial: Identify the optimal D subtype solution</title>
+<title>Tutorial: Obtain an overall p-value for a factor variable</title>
 
 
 
@@ -303,42 +303,58 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 
 
-<h1 class="title toc-ignore">Tutorial: Identify the optimal D subtype solution</h1>
+<h1 class="title toc-ignore">Tutorial: Obtain an overall p-value for a factor variable</h1>
 <h4 class="author">Emily C. Zabor</h4>
 <h4 class="date">Last updated: September 06, 2019</h4>
 
 
 
-<div id="introduction" class="section level2">
-<h2>Introduction</h2>
-<p>Sometimes subtypes will not be pre-defined, but rather it will be of interest to identify subtypes that differ maximally with respect to risk heterogeneity based on some number of disease markers.</p>
-<p>This tutorial will introduce you to the <code>optimal_kmeans_d()</code> function, which will run <span class="math inline">\(k\)</span>-means clustering, using the <code>kmeans()</code> function, on disease marker data and identify the subtype solution that maximizes <span class="math inline">\(D\)</span>. When <span class="math inline">\(k\)</span>-means clustering is run with multiple random starts, it will return a variety of class solutions, as the algorithm typically reaches a local rather than global maxima. Then for each candidate class solution, <span class="math inline">\(D\)</span> can be computed and the solution that maximizes <span class="math inline">\(D\)</span>, a measure of etiologic heterogeneity, can be identified. This function is currently for use with case-control data only. See <a href="calculate_d.html">Tutorial: Estimate the extent of etiologic heterogeneity</a> for details on the calculation of the <span class="math inline">\(D\)</span> value.</p>
+<div id="context" class="section level1">
+<h1>Context</h1>
+<p>After using <code>eh_test_subtype()</code> to obtain a model fit, if factor variables are involved in the analysis it will be of interest to obtain overall p-values testing for differences across subtypes across all levels of the factor variable.</p>
+<p>The <code>posthoc_factor_test()</code> function allows for post-hoc testing of a factor variable.</p>
 </div>
-<div id="example" class="section level2">
-<h2>Example</h2>
-<p>This tutorial will make use of a simulated example dataset named <code>subtype_data</code>. This simulated dataset contains 1200 case subjects and 800 control subjects. There are 30 continuous disease markers available on the cases. There are two continuous risk factors and one binary risk factor available on all subjects.</p>
-<p>Say for example that interest was in identifying the optimally etiologically heterogeneous 3-subtype solution based on all 30 markers <code>y1</code>-<code>y30</code> available in <code>subtype_data</code>, using all three risk factors <code>x1</code>, <code>x2</code> and <code>x3</code>. We use the default of 100 random starts of the <span class="math inline">\(k\)</span>-means clustering algorithm, and set a seed so that results would be reproduced if we were to run this code again on a later date. Note that this function is currently a bit slow to run due to the fitting of numerous models, so please be patient.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(riskclustr)</span>
-<span id="cb1-2"><a href="#cb1-2"></a></span>
-<span id="cb1-3"><a href="#cb1-3"></a>res &lt;-<span class="st"> </span><span class="kw">optimal_kmeans_d</span>(</span>
-<span id="cb1-4"><a href="#cb1-4"></a>  <span class="dt">markers =</span> <span class="kw">c</span>(<span class="kw">paste0</span>(<span class="st">&quot;y&quot;</span>, <span class="kw">seq</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">30</span>))),</span>
-<span id="cb1-5"><a href="#cb1-5"></a>  <span class="dt">M =</span> <span class="dv">3</span>,</span>
-<span id="cb1-6"><a href="#cb1-6"></a>  <span class="dt">factors =</span> <span class="kw">list</span>(<span class="st">&quot;x1&quot;</span>, <span class="st">&quot;x2&quot;</span>, <span class="st">&quot;x3&quot;</span>),</span>
-<span id="cb1-7"><a href="#cb1-7"></a>  <span class="dt">case =</span> <span class="st">&quot;case&quot;</span>,</span>
-<span id="cb1-8"><a href="#cb1-8"></a>  <span class="dt">data =</span> subtype_data,</span>
-<span id="cb1-9"><a href="#cb1-9"></a>  <span class="dt">nstart =</span> <span class="dv">100</span>,</span>
-<span id="cb1-10"><a href="#cb1-10"></a>  <span class="dt">seed =</span> <span class="dv">81110224</span>)</span></code></pre></div>
-<p>The function returns a list with one element for the optimal <span class="math inline">\(D\)</span> value and one element that is the original data frame with a column added for the optimal <span class="math inline">\(D\)</span> class solution.</p>
-<p>First let’s look at a tabulation of <code>optimal_d_label</code> from the <code>optimal_d_data</code> object to see how each case was classified into a subtype:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">table</span>(res[[<span class="st">&quot;optimal_d_data&quot;</span>]]<span class="op">$</span>optimal_d_label)</span>
-<span id="cb2-2"><a href="#cb2-2"></a><span class="co">#&gt; </span></span>
-<span id="cb2-3"><a href="#cb2-3"></a><span class="co">#&gt;   0   1   2   3 </span></span>
-<span id="cb2-4"><a href="#cb2-4"></a><span class="co">#&gt; 800 301 300 599</span></span></code></pre></div>
-<p>These subtype labels could now be used as the outcome in a polytomous logistic regression model fit with <code>eh_test_subtype()</code> to obtain measures of risk factor association as well as heterogeneity <span class="math inline">\(p\)</span>-values. See <a href="eh_test.html">Tutorial: test for etiologic heterogeneity in a case-control study</a> for details.</p>
-<p>Next we can see the <span class="math inline">\(D\)</span> value that goes long with the optimal subtype solution:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>res[[<span class="st">&quot;optimal_d&quot;</span>]]</span>
-<span id="cb3-2"><a href="#cb3-2"></a><span class="co">#&gt; [1] 0.3385876</span></span></code></pre></div>
-<p>We see that this optimal 3-subtype solution based on clustering the 30 disease markers results in <span class="math inline">\(D=0.339\)</span>.</p>
+<div id="example" class="section level1">
+<h1>Example</h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># Load needed packages</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="kw">library</span>(riskclustr)</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="kw">library</span>(dplyr)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># create a new example dataset that contains a factor variable</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a>factor_data &lt;-<span class="st"> </span></span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="st">  </span>subtype_data <span class="op">%&gt;%</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="st">  </span><span class="kw">mutate</span>(</span>
+<span id="cb2-5"><a href="#cb2-5"></a>    <span class="dt">x4 =</span> <span class="kw">cut</span>(</span>
+<span id="cb2-6"><a href="#cb2-6"></a>      x1,</span>
+<span id="cb2-7"><a href="#cb2-7"></a>      <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="op">-</span><span class="fl">3.4</span>, <span class="fl">-0.4</span>, <span class="fl">0.3</span>, <span class="fl">1.1</span>, <span class="fl">3.8</span>),</span>
+<span id="cb2-8"><a href="#cb2-8"></a>      <span class="dt">include.lowest =</span> T,</span>
+<span id="cb2-9"><a href="#cb2-9"></a>      <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;1st quart&quot;</span>,</span>
+<span id="cb2-10"><a href="#cb2-10"></a>                 <span class="st">&quot;2nd quart&quot;</span>,</span>
+<span id="cb2-11"><a href="#cb2-11"></a>                 <span class="st">&quot;3rd quart&quot;</span>,</span>
+<span id="cb2-12"><a href="#cb2-12"></a>                 <span class="st">&quot;4th quart&quot;</span>)</span>
+<span id="cb2-13"><a href="#cb2-13"></a>      )</span>
+<span id="cb2-14"><a href="#cb2-14"></a>    )</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># Fit the model using x4 in place of x1</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a>mod1 &lt;-<span class="st"> </span><span class="kw">eh_test_subtype</span>(</span>
+<span id="cb3-3"><a href="#cb3-3"></a>  <span class="dt">label =</span> <span class="st">&quot;subtype&quot;</span>,</span>
+<span id="cb3-4"><a href="#cb3-4"></a>  <span class="dt">M =</span> <span class="dv">4</span>,</span>
+<span id="cb3-5"><a href="#cb3-5"></a>  <span class="dt">factors =</span> <span class="kw">list</span>(<span class="st">&quot;x4&quot;</span>, <span class="st">&quot;x2&quot;</span>, <span class="st">&quot;x3&quot;</span>),</span>
+<span id="cb3-6"><a href="#cb3-6"></a>  <span class="dt">data =</span> factor_data,</span>
+<span id="cb3-7"><a href="#cb3-7"></a>  <span class="dt">digits =</span> <span class="dv">2</span></span>
+<span id="cb3-8"><a href="#cb3-8"></a>)</span></code></pre></div>
+<p>After we have the model fit, we can obtain the p-value testing all levels of <code>x4</code> simulaneously.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>mypval &lt;-<span class="st"> </span><span class="kw">posthoc_factor_test</span>(</span>
+<span id="cb4-2"><a href="#cb4-2"></a>  <span class="dt">fit =</span> mod1, </span>
+<span id="cb4-3"><a href="#cb4-3"></a>  <span class="dt">factor =</span> <span class="st">&quot;x4&quot;</span>, </span>
+<span id="cb4-4"><a href="#cb4-4"></a>  <span class="dt">nlevels =</span> <span class="dv">4</span></span>
+<span id="cb4-5"><a href="#cb4-5"></a>  )</span></code></pre></div>
+<p>The function returns both a formatted and unformatted p-value. The formatted p-value can be accessed as <code>pval</code>:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>mypval<span class="op">$</span>pval</span>
+<span id="cb5-2"><a href="#cb5-2"></a><span class="co">#&gt;       P </span></span>
+<span id="cb5-3"><a href="#cb5-3"></a><span class="co">#&gt; &quot;&lt;.001&quot;</span></span></code></pre></div>
+<p>The unformatted p-value can be accessed as <code>pval_raw</code>:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>mypval<span class="op">$</span>pval_raw</span>
+<span id="cb6-2"><a href="#cb6-2"></a><span class="co">#&gt; P </span></span>
+<span id="cb6-3"><a href="#cb6-3"></a><span class="co">#&gt; 0</span></span></code></pre></div>
 </div>
 
 

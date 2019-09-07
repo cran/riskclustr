@@ -7,6 +7,7 @@
 <meta charset="utf-8" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -19,9 +20,9 @@
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css" data-origin="pandoc">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
 div.sourceCode { margin: 1em 0; }
@@ -31,14 +32,16 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(title);
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
+    border: none; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -47,9 +50,9 @@ pre.numberSource a.sourceLine::before
   }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  {  }
+  {   }
 @media screen {
-a.sourceLine::before { text-decoration: underline; }
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -95,7 +98,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -290,6 +293,9 @@ code > span.al { color: #ff0000; font-weight: bold; }
 code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
 </style>
 
+
+
+
 </head>
 
 <body>
@@ -298,8 +304,8 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 
 <h1 class="title toc-ignore">Tutorial: Test for etiologic heterogeneity in a case-control study</h1>
-<h4 class="author"><em>Emily C. Zabor</em></h4>
-<h4 class="date"><em>Last updated: January 11, 2019</em></h4>
+<h4 class="author">Emily C. Zabor</h4>
+<h4 class="date">Last updated: September 06, 2019</h4>
 
 
 
@@ -311,23 +317,23 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <li>Do risk factor effects differ according to individual disease markers that combine to form disease subtypes?</li>
 </ol>
 <p>Whether disease subtypes are pre-specified or formed by cross-classification of individual disease markers, the resulting polytomous logistic regression model is the same. Let <span class="math inline">\(i\)</span> index study subjects, <span class="math inline">\(i = 1, \ldots, N\)</span>, let <span class="math inline">\(m\)</span> index disease subtypes, <span class="math inline">\(m = 0, \ldots M\)</span>, where <span class="math inline">\(m=0\)</span> denotes control subjects, and let <span class="math inline">\(p\)</span> index risk factors, <span class="math inline">\(p = 1, \ldots, P\)</span>. The polytomous logistic regression model is specified as</p>
-<p><span class="math display">\[\Pr(Y = m | \mathbf{X}) = \frac{\exp(\mathbf{X}^T \mathbf{\beta}_{\boldsymbol{\cdot} m})}{\mathbf{1} + \exp(\mathbf{X}^T \mathbf{\beta}) \mathbf{1}}\]</span> where <span class="math inline">\(\mathbf{X}\)</span> is the <span class="math inline">\((P+1) \times N\)</span> matrix of risk factor values, with the first row all ones for the intercept, and <span class="math inline">\(\mathbf{\beta}\)</span> is the <span class="math inline">\((P+1) \times M\)</span> matrix of regression coefficients. <span class="math inline">\(\mathbf{\beta}_{\boldsymbol{\cdot} m}\)</span> indicates the <span class="math inline">\(m\)</span>th column of the matrix <span class="math inline">\(\mathbf{\beta}\)</span> and <span class="math inline">\(\mathbf{1}\)</span> represents a vector of ones of length <span class="math inline">\(M\)</span>.</p>
+<p><span class="math display">\[\Pr(Y = m | \mathbf{X}) = \frac{\exp(\mathbf{X}^T \boldsymbol{\beta}_{\boldsymbol{\cdot} m})}{\mathbf{1} + \exp(\mathbf{X}^T \boldsymbol{\beta}) \mathbf{1}}\]</span> where <span class="math inline">\(\mathbf{X}\)</span> is the <span class="math inline">\((P+1) \times N\)</span> matrix of risk factor values, with the first row all ones for the intercept, and <span class="math inline">\(\boldsymbol{\beta}\)</span> is the <span class="math inline">\((P+1) \times M\)</span> matrix of regression coefficients. <span class="math inline">\(\boldsymbol{\beta}_{\boldsymbol{\cdot} m}\)</span> indicates the <span class="math inline">\(m\)</span>th column of the matrix <span class="math inline">\(\boldsymbol{\beta}\)</span> and <span class="math inline">\(\mathbf{1}\)</span> represents a vector of ones of length <span class="math inline">\(M\)</span>.</p>
 </div>
 <div id="subtype" class="section level2">
 <h2>Pre-specified subtypes</h2>
 <p>If disease subtypes are pre-specified, either based on clustering high-dimensional disease marker data or based on a single disease marker or combinations of disease markers, then statistical tests for etiologic heterogeneity according to each risk factor can be conducted using the <code>eh_test_subtype()</code> function.</p>
-<p>Estimates of the parameters of interest related to the question of whether risk factor effects differ across subtypes of disease, <span class="math inline">\(\hat{\mathbf{\beta}}\)</span>, and the associated estimated variance-covariance matrix, <span class="math inline">\(\widehat{cov}(\hat{\mathbf{\beta}})\)</span>, are obtained directly from the resulting polytomous logistic regression model. Each <span class="math inline">\(\beta_{pm}\)</span> parameter represents the log odds ratio for a one-unit change in risk factor <span class="math inline">\(p\)</span> for subtype <span class="math inline">\(m\)</span> disease versus controls. Hypothesis tests for the question of whether a specific risk factor effect differs across subtypes of disease can be conducted separately for each risk factor <span class="math inline">\(p\)</span> using a Wald test of the hypothesis</p>
+<p>Estimates of the parameters of interest related to the question of whether risk factor effects differ across subtypes of disease, <span class="math inline">\(\hat{\boldsymbol{\beta}}\)</span>, and the associated estimated variance-covariance matrix, <span class="math inline">\(\widehat{cov}(\hat{\boldsymbol{\beta}})\)</span>, are obtained directly from the resulting polytomous logistic regression model. Each <span class="math inline">\(\beta_{pm}\)</span> parameter represents the log odds ratio for a one-unit change in risk factor <span class="math inline">\(p\)</span> for subtype <span class="math inline">\(m\)</span> disease versus controls. Hypothesis tests for the question of whether a specific risk factor effect differs across subtypes of disease can be conducted separately for each risk factor <span class="math inline">\(p\)</span> using a Wald test of the hypothesis</p>
 <p><span class="math display">\[H_{0_{\beta_{p.}}}: \beta_{p1} = \dots = \beta_{pM}\]</span> Using the <code>subtype_data</code> simulated dataset, we can examine the influence of risk factors <code>x1</code>, <code>x2</code>, and <code>x3</code> on the 4 pre-specified disease subtypes in variable <code>subtype</code> using the following code:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(riskclustr)</a>
-<a class="sourceLine" id="cb1-2" title="2"></a>
-<a class="sourceLine" id="cb1-3" title="3">mod1 &lt;-<span class="st"> </span><span class="kw">eh_test_subtype</span>(</a>
-<a class="sourceLine" id="cb1-4" title="4">  <span class="dt">label =</span> <span class="st">&quot;subtype&quot;</span>, </a>
-<a class="sourceLine" id="cb1-5" title="5">  <span class="dt">M =</span> <span class="dv">4</span>, </a>
-<a class="sourceLine" id="cb1-6" title="6">  <span class="dt">factors =</span> <span class="kw">list</span>(<span class="st">&quot;x1&quot;</span>, <span class="st">&quot;x2&quot;</span>, <span class="st">&quot;x3&quot;</span>), </a>
-<a class="sourceLine" id="cb1-7" title="7">  <span class="dt">data =</span> subtype_data)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(riskclustr)</span>
+<span id="cb1-2"><a href="#cb1-2"></a></span>
+<span id="cb1-3"><a href="#cb1-3"></a>mod1 &lt;-<span class="st"> </span><span class="kw">eh_test_subtype</span>(</span>
+<span id="cb1-4"><a href="#cb1-4"></a>  <span class="dt">label =</span> <span class="st">&quot;subtype&quot;</span>, </span>
+<span id="cb1-5"><a href="#cb1-5"></a>  <span class="dt">M =</span> <span class="dv">4</span>, </span>
+<span id="cb1-6"><a href="#cb1-6"></a>  <span class="dt">factors =</span> <span class="kw">list</span>(<span class="st">&quot;x1&quot;</span>, <span class="st">&quot;x2&quot;</span>, <span class="st">&quot;x3&quot;</span>), </span>
+<span id="cb1-7"><a href="#cb1-7"></a>  <span class="dt">data =</span> subtype_data)</span></code></pre></div>
 <p>See the function <a href="http://www.emilyzabor.com/riskclustr/reference/eh_test_subtype.html">documentation</a> for details of function arguments.</p>
-<p>The resulting estimates <span class="math inline">\(\hat{\mathbf{\beta}}\)</span> can be accessed with</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1">mod1<span class="op">$</span>beta</a></code></pre></div>
+<p>The resulting estimates <span class="math inline">\(\hat{\boldsymbol{\beta}}\)</span> can be accessed with</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>mod1<span class="op">$</span>beta</span></code></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -362,8 +368,8 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 </tr>
 </tbody>
 </table>
-<p>the associated standard deviation estimates <span class="math inline">\(\sqrt{\widehat{var}(\hat{\mathbf{\beta}})}\)</span> with</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1">mod1<span class="op">$</span>beta_se</a></code></pre></div>
+<p>the associated standard deviation estimates <span class="math inline">\(\sqrt{\widehat{var}(\hat{\boldsymbol{\beta}})}\)</span> with</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>mod1<span class="op">$</span>beta_se</span></code></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -399,7 +405,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 </tbody>
 </table>
 <p>and the heterogeneity p-values with</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1">mod1<span class="op">$</span>eh_pval</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>mod1<span class="op">$</span>eh_pval</span></code></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -422,8 +428,8 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 </tr>
 </tbody>
 </table>
-<p>An overall formatted dataframe containing <span class="math inline">\(\hat{\mathbf{\beta}} \Big(\sqrt{\widehat{var}(\hat{\mathbf{\beta}})}\Big)\)</span> and heterogeneity p-values <code>p_het</code> to test the null hypotheses <span class="math inline">\(H_{0_{\beta_{p.}}}\)</span> can be obtained as</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1">mod1<span class="op">$</span>beta_se_p</a></code></pre></div>
+<p>An overall formatted dataframe containing <span class="math inline">\(\hat{\boldsymbol{\beta}} \Big(\sqrt{\widehat{var}(\hat{\boldsymbol{\beta}})}\Big)\)</span> and heterogeneity p-values <code>p_het</code> to test the null hypotheses <span class="math inline">\(H_{0_{\beta_{p.}}}\)</span> can be obtained as</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>mod1<span class="op">$</span>beta_se_p</span></code></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -462,8 +468,8 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 </tr>
 </tbody>
 </table>
-<p>Because it is often of interest to examine associations in a case-control study on the odds ratio (OR) scale rather than the original parameter estimate scale, it is also possible to obtain a matrix containing <span class="math inline">\(OR=\exp(\hat{\mathbf{\beta}})\)</span>, along with 95% confidence intervals and heterogeneity p-values <code>p_het</code> to test the null hypotheses <span class="math inline">\(H_{0_{\beta_{p.}}}\)</span> using</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1">mod1<span class="op">$</span>or_ci_p</a></code></pre></div>
+<p>Because it is often of interest to examine associations in a case-control study on the odds ratio (OR) scale rather than the original parameter estimate scale, it is also possible to obtain a matrix containing <span class="math inline">\(OR=\exp(\hat{\boldsymbol{\beta}})\)</span>, along with 95% confidence intervals and heterogeneity p-values <code>p_het</code> to test the null hypotheses <span class="math inline">\(H_{0_{\beta_{p.}}}\)</span> using</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>mod1<span class="op">$</span>or_ci_p</span></code></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -507,21 +513,21 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <h2>Subtypes formed by cross-classification of disease markers</h2>
 <p>If disease subtypes are formed by cross-classifying individual binary disease markers, then statistical tests for associations between risk factors and individual disease markers can be conducted using the <code>eh_test_marker()</code> funtion.</p>
 <p>Let <span class="math inline">\(k\)</span> index disease markers, <span class="math inline">\(k = 1, \ldots, K\)</span>. Here the <span class="math inline">\(M\)</span> disease subtypes are formed by cross-classification of the <span class="math inline">\(K\)</span> binary disease markers, so that we have <span class="math inline">\(M = 2^K\)</span> disease subtypes.</p>
-<p>To evaluate the independent influences of individual disease markers, it is convenient to transform the parameters in <span class="math inline">\(\mathbf{\beta}\)</span> using the one-to-one linear transformation</p>
-<p><span class="math display">\[\hat{\mathbf{\gamma}} = \frac{\hat{\mathbf{\beta}} \mathbf{L}}{M/2}.\]</span> Here <span class="math inline">\(\mathbf{L}\)</span> is an <span class="math inline">\(M \times K\)</span> contrast matrix such that the entries are -1 if disease marker <span class="math inline">\(k\)</span> is absent for disease subtype <span class="math inline">\(m\)</span> and 1 if disease marker <span class="math inline">\(k\)</span> is present for disease subtype <span class="math inline">\(m\)</span>. <span class="math inline">\(\mathbf{\gamma}\)</span> is then the <span class="math inline">\((P+1) \times K\)</span> matrix of parameters that reflect the independent effects of distinct disease markers. Each element of the <span class="math inline">\(\mathbf{\gamma}\)</span> parameters represents the average of differences in log odds ratios between disease subtypes defined by different levels of the <span class="math inline">\(k\)</span>th disease marker with respect to the <span class="math inline">\(p\)</span>th risk factor when the other disease markers are held constant. Variance estimates corresponding to each <span class="math inline">\(\hat{\gamma}_{pk}\)</span> are obtained using</p>
-<p><span class="math display">\[\widehat{var}(\hat{\gamma}_{pk}) = \left(\frac{M}{2}\right)^{-2} \mathbf{L}_{\boldsymbol{\cdot} k}^T \widehat{cov}(\hat{\mathbf{\beta}}_{p \boldsymbol{\cdot}}^T) \mathbf{L}_{\boldsymbol{\cdot} k}\]</span> where <span class="math inline">\(\mathbf{L}_{\boldsymbol{\cdot} k}\)</span> is the <span class="math inline">\(k\)</span>th column of the <span class="math inline">\(\mathbf{L}\)</span> matrix and the estimated variance-covariance matrix <span class="math inline">\(\widehat{cov}(\hat{\mathbf{\beta}}_{p \boldsymbol{\cdot}})\)</span> for each risk factor <span class="math inline">\(p\)</span> is obtained directly from the polytomous logistic regression model.</p>
+<p>To evaluate the independent influences of individual disease markers, it is convenient to transform the parameters in <span class="math inline">\(\boldsymbol{\beta}\)</span> using the one-to-one linear transformation</p>
+<p><span class="math display">\[\hat{\boldsymbol{\gamma}} = \frac{\hat{\boldsymbol{\beta}} \mathbf{L}}{M/2}.\]</span> Here <span class="math inline">\(\mathbf{L}\)</span> is an <span class="math inline">\(M \times K\)</span> contrast matrix such that the entries are -1 if disease marker <span class="math inline">\(k\)</span> is absent for disease subtype <span class="math inline">\(m\)</span> and 1 if disease marker <span class="math inline">\(k\)</span> is present for disease subtype <span class="math inline">\(m\)</span>. <span class="math inline">\(\boldsymbol{\gamma}\)</span> is then the <span class="math inline">\((P+1) \times K\)</span> matrix of parameters that reflect the independent effects of distinct disease markers. Each element of the <span class="math inline">\(\boldsymbol{\gamma}\)</span> parameters represents the average of differences in log odds ratios between disease subtypes defined by different levels of the <span class="math inline">\(k\)</span>th disease marker with respect to the <span class="math inline">\(p\)</span>th risk factor when the other disease markers are held constant. Variance estimates corresponding to each <span class="math inline">\(\hat{\gamma}_{pk}\)</span> are obtained using</p>
+<p><span class="math display">\[\widehat{var}(\hat{\gamma}_{pk}) = \left(\frac{M}{2}\right)^{-2} \mathbf{L}_{\boldsymbol{\cdot} k}^T \widehat{cov}(\hat{\boldsymbol{\beta}}_{p \boldsymbol{\cdot}}^T) \mathbf{L}_{\boldsymbol{\cdot} k}\]</span> where <span class="math inline">\(\mathbf{L}_{\boldsymbol{\cdot} k}\)</span> is the <span class="math inline">\(k\)</span>th column of the <span class="math inline">\(\mathbf{L}\)</span> matrix and the estimated variance-covariance matrix <span class="math inline">\(\widehat{cov}(\hat{\boldsymbol{\beta}}_{p \boldsymbol{\cdot}})\)</span> for each risk factor <span class="math inline">\(p\)</span> is obtained directly from the polytomous logistic regression model.</p>
 <p>Hypothesis tests for the question of whether a risk factor effect differs across levels of each individual disease marker of which the disease subtypes are comprised can be conducted separately for each combination of risk factor <span class="math inline">\(p\)</span> and disease marker <span class="math inline">\(k\)</span> using a Wald test of the hypothesis</p>
-<p><span class="math display">\[H_{0_{{\gamma_{pk}}}}: \gamma_{pk} = 0.\]</span> Using the <code>subtype_data</code> simulated dataset, we can examine the influence of risk factors <code>x1</code>, <code>x2</code>, and <code>x3</code> on the two individual disease markers <code>marker1</code> and <code>marker2</code>. These two binary disease markers will be cross-classified to form four disease subtypes that will be used as the outcome in the polytomous logistic regression model to obtain the <span class="math inline">\(\hat{\mathbf{\beta}}\)</span> estimates, which are then transformed in order to obtain estimates and hypothesis tests related to the individual disease markers.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1"><span class="kw">library</span>(riskclustr)</a>
-<a class="sourceLine" id="cb7-2" title="2"></a>
-<a class="sourceLine" id="cb7-3" title="3">mod2 &lt;-<span class="st"> </span><span class="kw">eh_test_marker</span>(</a>
-<a class="sourceLine" id="cb7-4" title="4">  <span class="dt">markers =</span> <span class="kw">list</span>(<span class="st">&quot;marker1&quot;</span>, <span class="st">&quot;marker2&quot;</span>),</a>
-<a class="sourceLine" id="cb7-5" title="5">  <span class="dt">factors =</span> <span class="kw">list</span>(<span class="st">&quot;x1&quot;</span>, <span class="st">&quot;x2&quot;</span>, <span class="st">&quot;x3&quot;</span>),</a>
-<a class="sourceLine" id="cb7-6" title="6">  <span class="dt">case =</span> <span class="st">&quot;case&quot;</span>,</a>
-<a class="sourceLine" id="cb7-7" title="7">  <span class="dt">data =</span> subtype_data)</a></code></pre></div>
+<p><span class="math display">\[H_{0_{{\gamma_{pk}}}}: \gamma_{pk} = 0.\]</span> Using the <code>subtype_data</code> simulated dataset, we can examine the influence of risk factors <code>x1</code>, <code>x2</code>, and <code>x3</code> on the two individual disease markers <code>marker1</code> and <code>marker2</code>. These two binary disease markers will be cross-classified to form four disease subtypes that will be used as the outcome in the polytomous logistic regression model to obtain the <span class="math inline">\(\hat{\boldsymbol{\beta}}\)</span> estimates, which are then transformed in order to obtain estimates and hypothesis tests related to the individual disease markers.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw">library</span>(riskclustr)</span>
+<span id="cb7-2"><a href="#cb7-2"></a></span>
+<span id="cb7-3"><a href="#cb7-3"></a>mod2 &lt;-<span class="st"> </span><span class="kw">eh_test_marker</span>(</span>
+<span id="cb7-4"><a href="#cb7-4"></a>  <span class="dt">markers =</span> <span class="kw">list</span>(<span class="st">&quot;marker1&quot;</span>, <span class="st">&quot;marker2&quot;</span>),</span>
+<span id="cb7-5"><a href="#cb7-5"></a>  <span class="dt">factors =</span> <span class="kw">list</span>(<span class="st">&quot;x1&quot;</span>, <span class="st">&quot;x2&quot;</span>, <span class="st">&quot;x3&quot;</span>),</span>
+<span id="cb7-6"><a href="#cb7-6"></a>  <span class="dt">case =</span> <span class="st">&quot;case&quot;</span>,</span>
+<span id="cb7-7"><a href="#cb7-7"></a>  <span class="dt">data =</span> subtype_data)</span></code></pre></div>
 <p>See the function <a href="http://www.emilyzabor.com/riskclustr/reference/eh_test_marker.html">documentation</a> for details of function arguments.</p>
-<p>The resulting estimates <span class="math inline">\(\hat{\mathbf{\gamma}}\)</span> can be accessed with</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1">mod2<span class="op">$</span>gamma</a></code></pre></div>
+<p>The resulting estimates <span class="math inline">\(\hat{\boldsymbol{\gamma}}\)</span> can be accessed with</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>mod2<span class="op">$</span>gamma</span></code></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -548,8 +554,8 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 </tr>
 </tbody>
 </table>
-<p>the associated standard deviation estimates <span class="math inline">\(\sqrt{\widehat{var}(\hat{\mathbf{\gamma}})}\)</span> with</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1">mod2<span class="op">$</span>gamma_se</a></code></pre></div>
+<p>the associated standard deviation estimates <span class="math inline">\(\sqrt{\widehat{var}(\hat{\boldsymbol{\gamma}})}\)</span> with</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>mod2<span class="op">$</span>gamma_se</span></code></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -577,7 +583,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 </tbody>
 </table>
 <p>and the associated p-values with</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1">mod2<span class="op">$</span>gamma_pval</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>mod2<span class="op">$</span>gamma_pval</span></code></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -604,8 +610,8 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 </tr>
 </tbody>
 </table>
-<p>An overall formatted dataframe containing the <span class="math inline">\(\hat{\mathbf{\gamma}} \Big(\sqrt{\widehat{var}(\hat{\mathbf{\gamma}})}\Big)\)</span> and p-values to test the null hypotheses <span class="math inline">\(H_{0_{\gamma_{pk}}}\)</span> can be obtained as</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1">mod2<span class="op">$</span>gamma_se_p</a></code></pre></div>
+<p>An overall formatted dataframe containing the <span class="math inline">\(\hat{\boldsymbol{\gamma}} \Big(\sqrt{\widehat{var}(\hat{\boldsymbol{\gamma}})}\Big)\)</span> and p-values to test the null hypotheses <span class="math inline">\(H_{0_{\gamma_{pk}}}\)</span> can be obtained as</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>mod2<span class="op">$</span>gamma_se_p</span></code></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -643,6 +649,9 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <p>The estimates and heterogeneity p-values for disease subtypes formed by cross-classifying these individual disease markers can also be accessed in objects <code>beta_se_p</code> and <code>or_ci_p</code>, as described in the section on <a href="#subtype">Pre-specified subtypes</a>.</p>
 </div>
 
+
+
+<!-- code folding -->
 
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
