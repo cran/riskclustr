@@ -6,7 +6,7 @@ knitr::opts_chunk$set(
 
 library(riskclustr)
 
-## ---- message = FALSE---------------------------------------------------------
+## ----message = FALSE----------------------------------------------------------
 # Load needed packages
 library(riskclustr)
 library(dplyr)
